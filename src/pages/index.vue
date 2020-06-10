@@ -11,7 +11,7 @@
      </p>
     </div>
     <div v-else class="notFound">
-     <p>No projects added yet</p>
+     <p>No projects found</p>
     </div>
   </div>
 </template>
@@ -30,18 +30,15 @@ export default {
     projects(){
       let map=this.allProjects;
       if(!!this.searchProject){
-        map=map.filter(c=>{
-          if(c.projectName.includes(this.searchProject)){
-            return c;
+        map=map.filter(project=>{
+          if(project.projectName.toLowerCase().includes(this.searchProject.toLowerCase())){
+            return project;
           }
        });
       }
       return map;
     }
 
-  },
-  updated(){
-    console.log('allProjects',this.allProjects)
   }
 }
 </script>

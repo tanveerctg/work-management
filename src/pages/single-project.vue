@@ -1,10 +1,19 @@
 <template>
   <div style="max-width:650px;width:100%;padding:30px 20px;">
-     <p v-for="(project,index) in getProject.todos" :key="index">
-       <span style="font-size:1.3rem;">{{project.todoText}}</span>
-       <br/>
-       <span>{{project.date}}</span>
-     </p>
+     <div v-if="getProject.todos.length>0" >
+      <div v-for="(project,index) in getProject.todos" :key="index" style="display:flex;align-items:center;margin-bottom:1.5rem;">
+       <p style="flex:1;margin-bottom:0;">
+         <span style="font-size:1.3rem;">{{project.todoText}}</span>
+         <br/>
+         <span>{{project.date}}</span>
+       </p>
+       <div>
+         <q-btn flat round icon="edit" size="xs" style="margin-right:5px;" @click="editTaskHandler(project.id)"/>
+         <q-btn push color="red" round icon="delete" size="xs" @click="deleteTaskHandler(project.id)"/>
+       </div>
+       </div>
+     </div>
+
      <q-btn color="primary" icon-right="add" label="Add Task" @click="show=!show" v-if="show" />
     
     <div v-if="!show">
@@ -50,7 +59,7 @@ export default {
     }
   },
   methods:{
-     ...mapActions(['addTodo']),
+     ...mapActions(['addTodo','editTodo','deleteTodo']),
     updateProxy () {
       this.proxyDate = this.date
     },
@@ -60,6 +69,38 @@ export default {
     addTodoHandler(){
       this.addTodo({projectId:this.parmsVal,todoText:this.todo,date:this.date,id:uuidv4()});
       this.todo='';
+    },
+    editTaskHandler(id){
+      this.$q.dialog({
+        title: 'Edit Task Name',
+        prompt: {
+          model: '',
+          type: 'text' // optional
+        },
+        cancel: true,
+        persistent: true
+      }).onOk(data => {
+        this.editTodo({projectId:this.$route.params.projectId,id,editTaskName:data});
+        // console.log('>>>> OK, received', data)
+      }).onCancel(() => {
+        
+      }).onDismiss(() => {
+        
+      })
+    },
+    deleteTaskHandler(id){
+     this.$q.dialog({
+      title: 'Confirm',
+        message: 'Would you like to delete this task?',
+        cancel: true,
+        persistent: true
+      }).onOk(() => {
+        this.deleteTodo({projectId:this.$route.params.projectId,id});
+      }).onCancel(() => {
+        // console.log('>>>> Cancel')
+      }).onDismiss(() => {
+    
+      })
     }
   },
   computed: {
@@ -69,7 +110,6 @@ export default {
   },
   created(){
     const getProject=this.allProjects.find(x=>x.projectId==this.parmsVal);
-    console.log('getProject',getProject)
     this.getProject=getProject;
   }
 }
